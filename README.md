@@ -1,6 +1,9 @@
-At the time this was for making noise but this project evolved for making special effects
+At the time this was for making noise but this project evolved for making special effects and editing images
 
 demo:
+
+
+
 
 if you past this code into your main program you will get a rolling cloud animation
 
@@ -99,12 +102,23 @@ for (int frame_number = 1; frame_number < MAX_FRAME; frame_number += SPEED)
 
 ![firework](https://github.com/SavageDud/Noise_generator/assets/67841707/ceaed76d-9fe5-4dca-af09-7221963a5e2a)
 
+
+
+
+
 Documentation: 
 
 new PerlinNoiseMap(NOISE_SIZE_X, NOISE_SIZE_Y, IMAGE_DETAIL_X, IMAGE_DETAIL_Y, RANDOM_SEED);
 
 //create a noise map 
 // the int[,] object of the map is in PerlinNoiseMap.noise_map
+
+
+
+
+
+
+
 
 // now the Image_Editing class
 // the main function are 
@@ -126,9 +140,14 @@ Image_Editing.CreateCurvedCircularImage(int[,] image); // image putting a point 
 Image_Editing.AddContrast(int[,] image , float amount) // raise the value of each pixel to the power of <amount>
 
 
+
 Image_Editing.CopyPartialVerticalImage(int[,] image , int verticall_amount  , int start) 
 // same as Partial_Vertical_display() but returns it rather than rendering it , also you need to give it a start and 
 //instead of a end you give it a amount
+
+
+
+
 
 
 // now the Effects class
