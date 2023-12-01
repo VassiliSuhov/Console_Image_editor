@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Formats.Asn1;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Clouds
+namespace Editor
 {
- 
+
     internal class Vector
     {
         public double x { get; set; }
@@ -27,9 +20,15 @@ namespace Clouds
             Console.WriteLine($"x : {this.x} || y : {this.y}");
         }
     }
+
+
+
     internal class PerlinNoiseMap
     {
         public int[,] noise_map { get; set; }
+
+
+        // gets a coord and the dimensions of a map , check if the coords are inside that map
         public static bool isValidCoord(int[] coord, int[] current_map_size)
         {
             return (coord[0] >= 0 && coord[1] >= 0 && coord[0] < current_map_size[0] && coord[1] < current_map_size[1]);
@@ -40,7 +39,7 @@ namespace Clouds
 
 
 
-
+        //
         public static int[,] produce_offset_ranges(int distance)
         {
             int[,] offsets = new int[(distance * 2 + 1) * (distance * 2 + 1), 2];
@@ -67,12 +66,17 @@ namespace Clouds
         {
             return (float)Math.Sqrt(Math.Pow(coord1[0] - (float)coord2[0], 2) + Math.Pow(coord1[1] - (float)coord2[1], 2));
         }
+
+        // given two maps of different size ,
         public static List<int[]> GetSurroundingCoords(float[] orignal_coord, int[] rounded_coords, int[] target_map_size , int area = 1)
         {
 
             const float SQRT_2 = 1.41421356237f;
+
             List<int[]> neighbors = new List<int[]>();
+
             int[,] NEIGHBOR_OFFSETS = produce_offset_ranges(area);
+
             for (int i = 0; i < NEIGHBOR_OFFSETS.GetLength(0); i++)
             {
                 int[] new_cord = { rounded_coords[0] + NEIGHBOR_OFFSETS[i, 0], rounded_coords[1] + NEIGHBOR_OFFSETS[i, 1] };
@@ -207,14 +211,12 @@ namespace Clouds
             Create_vectors(vector_map, generator);
             Create_density_map(vector_map, gradient_map);
 
-            vector_map = null;
+            
             InterpaleValues(gradient_map, den_map);
 
             this.noise_map = den_map;
 
-            gradient_map = null;
-            den_map = null;
-            generator = null;
+            
         }
 
     }
@@ -222,7 +224,11 @@ namespace Clouds
 
 
 
-
+    /*
+     * <summary>
+     * Image_editing class is for editing single static im
+     * </summary>
+     */
     internal class Image_Editing
     {
 
@@ -266,16 +272,28 @@ namespace Clouds
         {
             int[] thresholds = { 30, 60, 90, 120, 150, 180, 240 };
             char[] thres_values = { '.', ',', ':', ';', '-', '+', '#' };
-            int Difference = 10;
+     
             char c = ' ';
-            for (int z = 0; z < thres_values.Length; z++)
+            
+            int jumpamount = 2;
+            int pt;
+            for (pt = 3;jumpamount > 0; jumpamount--)
             {
-
-                if (value >= thresholds[z] - 10)
+                if(value > thresholds[pt])
                 {
-                    c = thres_values[z];
+                    pt += jumpamount;
+                }
+                else
+                {
+                    pt -= jumpamount;
                 }
             }
+            if(value > thresholds[pt])
+            {
+                c = thres_values[pt];
+            }
+            
+            
             return c;
 
         }
@@ -284,11 +302,15 @@ namespace Clouds
         public void RenderLine(int[,] image ,int line)
         {
             string line_message = "";
-            for (int y = 0; y < image.GetLength(1); y++)
+            for (int y = 0; y < image.GetLength(1) - 1; y++)
             {
-
-                line_message += DeterminerSymbole(image[line, y]);
+      
+                    line_message += new string( DeterminerSymbole(image[line, y]) , 2) ;
+                
+               
+                
             }
+            
             Console.WriteLine(line_message);
         }
 
@@ -301,6 +323,8 @@ namespace Clouds
                 RenderLine(image , x);
             }
         }
+
+        // given a image bump the value of all the pixels by a certain amount
         public void Image_bump(int[,] image , int amount)
         {
             
@@ -312,6 +336,11 @@ namespace Clouds
                 }
             }
         }
+
+        //given two integers x and y , let's suppose now these two sets
+        // X = {-x , ... , -1 , 0 , 1 ,.. x }  Y = { - y , ... , -1 , 0 , 1 ,... y}
+        // this function returns the list X * Y ,
+        // it gives all posibile combination of (X , Y )
         public int[,] produce_offset_ranges(int amount_x, int amount_y)
         {
             int[,] offsets = new int[(amount_x * 2 + 1) * (amount_y * 2 + 1)  , 2];
@@ -329,6 +358,8 @@ namespace Clouds
             }
             return offsets;
         }
+
+        //given a coordinate of a image and a x , y returns the average value of its neighbores of x distance x , and y distance y 
         public int average_of_neighbors(int[,] image , int pos_x , int pos_y , int amount_x, int amount_y )
         {
             int[] target_map_size = {image.GetLength(0) ,  image.GetLength(1) };
@@ -351,20 +382,20 @@ namespace Clouds
         public void simple_blure(int[,] image , int amount_x , int amount_y)
         {
             int[] image_dim = {image.GetLength(0) , image.GetLength(1) }; 
-            int[,] image_new = new int[image_dim[0] , image_dim[1] ];
+            
 
             for (int x = 0; x < image_dim[0]; x++)
             {
                 for (int y = 0; y < image_dim[1]; y++)
                 {
-                    image[x, y] = average_of_neighbors(image,x, y, amount_x, amount_y);
+                    image[x, y] = Math.Min(average_of_neighbors(image,x, y, amount_x, amount_y) + image[x, y], 255);
                 }
             }
             image_dim = null;
-            image_new = null;
+            
         }
 
-        public int[] getImageSize(int[,] image)
+        public int[] GetImageSize(int[,] image)
         {
             int[] size = { image.GetLength(0), image.GetLength(1) };
             return size;
@@ -372,23 +403,28 @@ namespace Clouds
 
         public void PrintImageSize(int[,] image)
         {
-            int[] size = getImageSize(image);
+            int[] size = GetImageSize(image);
             Console.WriteLine($" Image size ---   x : {size[0]}   y : {size[1]}");
             size = null;
         }
         public bool ImageSameSize(int[,] image1 , int[,] image2)
         {
-            int[] size1 = getImageSize(image1);
-            int[] size2 = getImageSize(image2);
-            bool result = size1 == size2;
+            int[] size1 = GetImageSize(image1);
+            int[] size2 = GetImageSize(image2);
+            bool result = (size1[0] == size2[0] && size2[1] == size1[1]);
             size2 = null;
             size1 = null;
             return result;
         }
+
+
+        // this function puts a image2 on top of image 1
         public void Add_images(int[,] image1 , int[,]image2)
         {
+
             if(ImageSameSize(image1 , image2))
              {
+                Console.WriteLine('h');
                 for (int x  = 0; x < image1.GetLength(0); x++)
                 {
                     for (int y = 0; y < image1.GetLength(0); y++)
@@ -400,34 +436,26 @@ namespace Clouds
         }
         
 
+        //given a image and two integers start_y and end_y , the function first renders the line start_y of the image , then advances and repeats
+        //till it reached end_y, if the pointer goes above the image size
+        public void Partial_Vertical_display(int[,] image , int start_y , int end_y )
 
-        public void Partial_Vertical_display(int[,] image , int start_x , int end_x , int image_size)
         {
-            int x = start_x;
-            while (x != end_x)
+            int image_size_y = image.GetLength(0) - 1;
+            int y = start_y;
+            while (y != end_y)
             {
-                RenderLine(image, x);
-                if (x >= image_size)
+                RenderLine(image, y);
+                if (y >= image_size_y-1)
                 {
 
-                    x = 0;
+                    y = 0;
                 }
                 else
                 {
-                    x++;
+                    y++;
                 }
             }
-            /*
-            for (int x = start_x; x != end_x; x++)
-            {
-                if(x >= image_size)
-                {
-                    
-                    x = 0;
-                }
-                RenderLine(image, x);
-            }
-            */
         }
 
 
@@ -441,10 +469,179 @@ namespace Clouds
         {
             Thread.Sleep(this.sleep_rate);
         }
+
         public Image_Editing(int framerate)
         {
             this.sleep_rate = 1000 / framerate;
         }
+
+        // given a triange with the points a b c , angle of abc is 90 deg , and given two integers the lenght of a to c and the angle cab
+        // return the position of c , supposing a is (0 , 0 )
+        public int[] GetCoordFromAngleAndHypoLenght(int angle , int hypo)
+        {
+            int[] coord = { (int)Math.Round(Math.Sin(angle) * hypo) , (int) Math.Round(Math.Cos(angle) * hypo)};
+            return coord;
+        }
+        //<summary>
+        // takes a image of n * m
+        // returns a warped circular image of n * m of that image
+        //</summary>
+        public int[,] CreateCurvedCircularImage(int[,] image)
+        {
+            int[] image_size = GetImageSize(image);
+            int[,] new_image = new int[(image_size[0] * 2) + 2, (image_size[1] * 2) + 2];
+            int[] circleMiddleCoord = { image_size[0], image_size[1]};
+
+            for (int i = 0; i < image_size[0]; i++)
+            {
+                for (int j = 0; j < image_size[1]; j++)
+                {
+                    int[] OffsetCoord = GetCoordFromAngleAndHypoLenght(j, i);
+                    new_image[OffsetCoord[0] + circleMiddleCoord[0], OffsetCoord[1] + circleMiddleCoord[1]] += image[i, j];
+                }
+            }
+            return new_image;
+        }
+
+
+        // I am making this shader to speed up my animation and make it faster ,
+        // basically this is CreateCurvedCircularImage() , AddContrast() and Vertical Gradient()
+        public int[,] FlareShader(int[,] image)
+        {
+            int[] image_size = GetImageSize(image);
+            int[,] new_image = new int[(image_size[0] * 2) + 2, (image_size[1] * 2) + 2];
+            int[] circleMiddleCoord = { image_size[0], image_size[1] };
+
+            float increments = 1.0f / image_size[0];
+            float amount = 1.0f;
+            for (int i = 0; i < image_size[0]; i++)
+            {
+                for (int j = 0; j < image_size[1]; j++)
+                {
+                    int[] OffsetCoord = GetCoordFromAngleAndHypoLenght(j, i);
+                    new_image[OffsetCoord[0] + circleMiddleCoord[0], OffsetCoord[1] + circleMiddleCoord[1]] += (int) (Math.Pow(image[i, j] , 1.4f));
+       
+
+                }
+                amount -= increments;
+            }
+            return new_image;
+
+        }
+
+        // adds contrast to the image
+        public void AddContrast(int[,] image ,float amount)
+        {
+            int[] image_size = GetImageSize(image);
+           
+            for (int i = 0; i < image_size[0]; i++)
+            {
+                for (int j = 0; j < image_size[1]; j++)
+                {
+                    image[i , j] = Math.Min((int)Math.Round(Math.Pow(image[i , j] , amount)) , 255);
+                }
+            }
+        }
+
+
+        // given a image copy a partial vertical amount to a new image and return it 
+        public int[,] CopyPartialVerticalImage(int[,] image , int verticall_amount  , int start)
+        {
+            int[,] new_image = new int[verticall_amount, image.GetLength(1)];
+            int pointer = start;
+            for (int i = 0; i < verticall_amount; i++) 
+            {
+                for (int j = 0 ; j < image.GetLength(1) ; j++)
+                {
+                    new_image[i, j] = image[pointer, j];
+                }
+                if (pointer >= image.GetLength(0) - 1)
+                {
+
+                    pointer = 0;
+                }
+                else
+                {
+                    pointer++;
+                }
+
+            }
+
+            return new_image;
+        }
+    }
+    // woriking on this not ready 
+    internal class Layer
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+
+        public int[,] IMAGE { get; set; }
+        public Layer(int x, int y , int dimX , int dimY)
+        {
+            X = x;
+            Y = y;  
+            IMAGE = new int[dimY, dimX];
+        }
+
+        public int[,] Render(int canvasX , int canvasY)
+        {
+            return IMAGE;
+        }
+
         
     }
+
+    // working on this not ready 
+
+    internal class Canvas
+    {
+        public int Size_X { get; set; }
+        public int Size_Y { get; set; }
+
+        public List<Layer> Layers { get; set; }
+        public Canvas(int sizeX , int sizeY)
+        {
+
+        }
+    }
+
+    internal class Effects
+    {
+        public static void Square(int[,] image , int x, int y , int size)
+        {
+            if(y < size || y > image.GetLength(0) - size)
+            {
+                Console.WriteLine("y must be between [size , image.GetLenght(0) - size)");
+                return;
+            }
+            if(x < size || x > image.GetLength(1) - size) {
+                Console.WriteLine("x must be between [size , image.GetLenght(1) - size)");
+                return;
+            }
+            int stopY = y + size;
+            int stopX = x + size;
+            for (int pY = y; pY < stopY; pY++)
+            {
+                for (int pX = x; pX < stopX; pX++)
+                {
+                    image[pY, pX] = 255;
+                } 
+            }
+        }
+
+        // working on it , not finished
+        public static void Circle(int[,] image , int circleX, int circleY, int radius)
+        {
+            for (int y = 0; y > image.GetLength(0);y++ )
+            {
+                for(int x = 0; x < image.GetLength(1);x++)
+                {
+
+                }
+            }
+        }
+    }
+
+    
 }
