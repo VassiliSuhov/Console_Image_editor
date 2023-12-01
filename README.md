@@ -26,30 +26,38 @@ const int FRAMERATE = 60;
 <br />
 <br />
 
+
+<br />
+<br />
+
+<br />
+<br />
+
+
+
+
+
+<br />
+<br />
+
+
+<br />
+<br />
+
 const int NOISE_SIZE_X = 10,
           NOISE_SIZE_Y = 10,
           IMAGE_DETAIL_X = 6,
           IMAGE_DETAIL_Y = 6,
           RANDOM_SEED = 36;
 
-<br />
-<br />
 
 PerlinNoiseMap perlin_n_map = new PerlinNoiseMap(NOISE_SIZE_X, NOISE_SIZE_Y, IMAGE_DETAIL_X, IMAGE_DETAIL_Y, RANDOM_SEED);
-
-<br />
-<br />
 
 
 Image_Editing editor = new Image_Editing(FRAMERATE);
 
-<br />
-<br />
 const int MAX_FRAME = 2000;
 const int window_gap = 50;
-
-<br />
-<br />
 
 int image_size = editor.GetImageSize(perlin_n_map.noise_map)[0];
 
