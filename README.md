@@ -56,20 +56,14 @@ int image_size = editor.GetImageSize(perlin_n_map.noise_map)[0];
 const int SPEED = 1;
 <br />
 <br />
-for (int frame_number = 1; frame_number < MAX_FRAME; frame_number += SPEED)
-{
-  int start = editor.Format_int_to_range(MAX_FRAME - frame_number, 0, image_size);
-
-<br />
-<br />
-   int[,] partialmap = editor.CopyPartialVerticalImage(perlin_n_map.noise_map, window_gap, start);
-<br />
-<br />
- 
-  Console.Clear();
-  editor.Render_255_BW_image(partialmap);
-  editor.Frame_Sleep();
-}
+for (int frame_number = 1; frame_number < MAX_FRAME; frame_number += SPEED)<br />
+{<br />
+  int start = editor.Format_int_to_range(MAX_FRAME - frame_number, 0, image_size);<br />
+  int[,] partialmap = editor.CopyPartialVerticalImage(perlin_n_map.noise_map, window_gap, start);<br />
+  Console.Clear();<br />
+  editor.Render_255_BW_image(partialmap);<br />
+  editor.Frame_Sleep();<br />
+}<br />
 
 
 
@@ -108,7 +102,7 @@ for (int frame_number = 1; frame_number < MAX_FRAME; frame_number += SPEED)
 <br />
 <br />
 
-another is adding one line and you get a firework:
+ another cool example is by adding one line and you get a firework:
 
 
 for (int frame_number = 1; frame_number < MAX_FRAME; frame_number += SPEED)
@@ -121,7 +115,7 @@ for (int frame_number = 1; frame_number < MAX_FRAME; frame_number += SPEED)
     int[,] partialmap = editor.CopyPartialVerticalImage(perlin_n_map.noise_map, window_gap, start);
 
     
-    //this line right here
+    //!this line right here!
     partialmap = editor.FlareShader(partialmap);
 
     
